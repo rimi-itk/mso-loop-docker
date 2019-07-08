@@ -1,0 +1,17 @@
+#!/usr/bin/env bash
+set -o errexit -o errtrace -o noclobber -o nounset -o pipefail
+IFS=$'\n\t'
+
+dir=$(cd $(dirname "${BASH_SOURCE[0]}")/../ && pwd)
+bold=$(tput bold)
+normal=$(tput sgr0)
+
+cd $dir
+
+docker-compose up --detach
+
+# composer install
+
+docker-compose run --rm drush --root=/app make --working-copy https://raw.githubusercontent.com/itk-mso/Loop/master/drupal.make /app/web
+
+docker-compose run --rm drush --root=/app/web --yes site-install loopdk --db-url='mysql://db:db@mariadb/db'
